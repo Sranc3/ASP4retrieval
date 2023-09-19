@@ -1,2 +1,3 @@
 # Attentive-Snippet-Prompting-for-video-retrieval
-demo for ASP
+### Demo for ASP ###
+This is the implementation for the paper Attentive Snippet Prompting for Video Retrieval.
