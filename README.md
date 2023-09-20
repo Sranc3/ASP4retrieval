@@ -22,6 +22,7 @@ Put `modeling_asp.py` under `./modules` and add the related import codes, use th
 The complete codes will be released soon.
 
 ## Acknowledegement
+This repo benefits from [CLIP](https://github.com/openai/CLIP) and [CLIP4Clip](https://github.com/ArrowLuo/CLIP4Clip). Thanks for their wonderful works.
 
 
 ## Citation
