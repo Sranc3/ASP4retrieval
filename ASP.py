@@ -261,15 +261,6 @@ class CLIP4Clip(CLIP4ClipPreTrainedModel):
                                                    heads=transformer_heads, )
 
         self.fc = MLP(2048, 512, 1)
-
-        # self.fc1 = nn.Conv2d(2048, 512, kernel_size=1, stride=1)
-        # self.fc2 = nn.Conv2d(512, 1, kernel_size=1, stride=1)
-        # self.fc3 = nn.Linear(100,1)
-        # self.relu = nn.ReLU(inplace=True)
-
-        # print("parameters:{}".format(self.fc1.parameters()))
-        # print(next(self.parameters()).requires_grad)
-        # sys.exit()
         if self.sim_header == "seqLSTM":
             self.lstm_visual = nn.LSTM(input_size=cross_config.hidden_size, hidden_size=cross_config.hidden_size,
                                        batch_first=True, bidirectional=False, num_layers=1)
@@ -298,7 +289,7 @@ class CLIP4Clip(CLIP4ClipPreTrainedModel):
             loss = 0.
             sim_matrix, *_tmp = self.get_similarity_logits(sequence_output, visual_output, attention_mask, video_mask,
                                                            shaped=True, loose_type=self.loose_type,
-                                                           eval=self.eval_method)  ############################################
+                                                           eval=self.eval_method)  
             sim_loss1 = self.loss_fct(sim_matrix)
             sim_loss2 = self.loss_fct(sim_matrix.T)
             sim_loss = (sim_loss1 + sim_loss2) / 2
@@ -408,13 +399,6 @@ class CLIP4Clip(CLIP4ClipPreTrainedModel):
             # Sequential type: Transformer Encoder
             visual_output_original = visual_output
 
-            #用正常的seqTransf的话  下面这段要删了
-            # a = visual_output.shape[0]
-            # c = visual_output.shape[2]
-            # device = visual_output.device
-            # zeros = torch.zeros([a, 1, c]).cuda(device)
-            # visual_output = visual_output - torch.cat((zeros, visual_output), 1)[:, :-1, :]
-            # visual_output = visual_output / visual_output.norm(dim=-1, keepdim=True)
 
             seq_length = visual_output.size(1)
             position_ids = torch.arange(seq_length, dtype=torch.long, device=visual_output.device)
@@ -447,7 +431,7 @@ class CLIP4Clip(CLIP4ClipPreTrainedModel):
         return retrieve_logits
 
     def ASP_logits(self, sequence_output, visual_output, attention_mask, video_mask, sim_header='seqTransf'):
-        sequence_output, visual_output = sequence_output.contiguous(), visual_output.contiguous()  # contiguous()为深度拷贝，拷贝完后不随原来的值变化
+        sequence_output, visual_output = sequence_output.contiguous(), visual_output.contiguous()  # contiguous()
         visual_output_original = visual_output
         sequence_output = sequence_output / sequence_output.norm(dim=-1, keepdim=True)
 
@@ -482,19 +466,17 @@ class CLIP4Clip(CLIP4ClipPreTrainedModel):
             w = 0.1
             after_select = visual_output_original + y * w
 
-            after_select = after_select / after_select.norm(dim=-1, keepdim=True)  # 先归一化
-            after_select = self._mean_pooling_for_similarity_visual(after_select, video_mask)  # 再计算平均池化
+            after_select = after_select / after_select.norm(dim=-1, keepdim=True) 
+            after_select = self._mean_pooling_for_similarity_visual(after_select, video_mask)  
 
-            after_select = after_select / after_select.norm(dim=-1, keepdim=True)  # 再归一化
+            after_select = after_select / after_select.norm(dim=-1, keepdim=True)  
 
             logits[i] = torch.matmul(x, after_select.transpose(-1, -2))
         return 100 * logits
 
     def programme_1(self, sequence_output, visual_output, attention_mask, video_mask, sim_header='seqTransf'):
 
-        # sequence_output 4*1*512文本特征输出  visual_output 4*64*512 视频的特征输出  video_mask 4*64
-
-        sequence_output, visual_output = sequence_output.contiguous(), visual_output.contiguous()  # contiguous()为深度拷贝，拷贝完后不随原来的值变化
+        sequence_output, visual_output = sequence_output.contiguous(), visual_output.contiguous() 
         sequence_output = sequence_output / sequence_output.norm(dim=-1, keepdim=True)
 
         seq_len = sequence_output.shape[0]  ##batch
@@ -514,18 +496,16 @@ class CLIP4Clip(CLIP4ClipPreTrainedModel):
             # y = sim_matrix.unsqueeze(-1).repeat(1,1,512) * y
             after_select = y + visual_output
 
-            after_select = after_select / after_select.norm(dim=-1, keepdim=True)  # 先归一化
-            after_select = self._mean_pooling_for_similarity_visual(after_select, video_mask)  # 再计算平均池化
-            after_select = after_select / after_select.norm(dim=-1, keepdim=True)  # 再归一化
+            after_select = after_select / after_select.norm(dim=-1, keepdim=True) 
+            after_select = self._mean_pooling_for_similarity_visual(after_select, video_mask) 
+            after_select = after_select / after_select.norm(dim=-1, keepdim=True)  
 
             logits[i] = torch.matmul(x, after_select.transpose(-1, -2))
         return 100 * logits
 
     def programme_2(self, sequence_output, visual_output, attention_mask, video_mask, sim_header='seqTransf'):
 
-        # sequence_output 4*1*512文本特征输出  visual_output 4*64*512 视频的特征输出  video_mask 4*64
-
-        sequence_output, visual_output = sequence_output.contiguous(), visual_output.contiguous()  # contiguous()为深度拷贝，拷贝完后不随原来的值变化
+        sequence_output, visual_output = sequence_output.contiguous(), visual_output.contiguous() 
         visual_output_original = visual_output
         sequence_output = sequence_output / sequence_output.norm(dim=-1, keepdim=True)
 
@@ -557,18 +537,16 @@ class CLIP4Clip(CLIP4ClipPreTrainedModel):
             # y = sim_matrix.unsqueeze(-1).repeat(1,1,512) * y
             after_select = visual_output + y
 
-            after_select = after_select / after_select.norm(dim=-1, keepdim=True)  # 先归一化
-            after_select = self._mean_pooling_for_similarity_visual(after_select, video_mask)  # 再计算平均池化
-            after_select = after_select / after_select.norm(dim=-1, keepdim=True)  # 再归一化
+            after_select = after_select / after_select.norm(dim=-1, keepdim=True)  
+            after_select = self._mean_pooling_for_similarity_visual(after_select, video_mask)  
+            after_select = after_select / after_select.norm(dim=-1, keepdim=True) 
 
             logits[i] = torch.matmul(x, after_select.transpose(-1, -2))
         return 100 * logits
 
     def programme_3(self, sequence_output, visual_output, attention_mask, video_mask, sim_header='seqTransf'):
 
-        # sequence_output 4*1*512文本特征输出  visual_output 4*64*512 视频的特征输出  video_mask 4*64
-
-        sequence_output, visual_output = sequence_output.contiguous(), visual_output.contiguous()  # contiguous()为深度拷贝，拷贝完后不随原来的值变化
+        sequence_output, visual_output = sequence_output.contiguous(), visual_output.contiguous()  
         visual_output_original = visual_output
         sequence_output = sequence_output / sequence_output.norm(dim=-1, keepdim=True)
 
@@ -601,16 +579,14 @@ class CLIP4Clip(CLIP4ClipPreTrainedModel):
             y = y.squeeze(1)
             after_select = y
 
-            after_select = after_select / after_select.norm(dim=-1, keepdim=True)  # 先归一化
+            after_select = after_select / after_select.norm(dim=-1, keepdim=True)  
 
             logits[i] = torch.matmul(x, after_select.transpose(-1, -2))
         return 100 * logits
 
     def programme_4(self, sequence_output, visual_output, attention_mask, video_mask, sim_header='seqTransf'):
 
-        # sequence_output 4*1*512文本特征输出  visual_output 4*64*512 视频的特征输出  video_mask 4*64
-
-        sequence_output, visual_output = sequence_output.contiguous(), visual_output.contiguous()  # contiguous()为深度拷贝，拷贝完后不随原来的值变化
+        sequence_output, visual_output = sequence_output.contiguous(), visual_output.contiguous()  
         visual_output_original = visual_output
         sequence_output = sequence_output / sequence_output.norm(dim=-1, keepdim=True)
 
@@ -642,18 +618,16 @@ class CLIP4Clip(CLIP4ClipPreTrainedModel):
             # y = sim_matrix.unsqueeze(-1).repeat(1,1,512) * y
             after_select = visual_output + y
 
-            after_select = after_select / after_select.norm(dim=-1, keepdim=True)  # 先归一化
-            after_select = self._mean_pooling_for_similarity_visual(after_select, video_mask)  # 再计算平均池化
-            after_select = after_select / after_select.norm(dim=-1, keepdim=True)  # 再归一化
+            after_select = after_select / after_select.norm(dim=-1, keepdim=True)  
+            after_select = self._mean_pooling_for_similarity_visual(after_select, video_mask)  
+            after_select = after_select / after_select.norm(dim=-1, keepdim=True) 
 
             logits[i] = torch.matmul(x, after_select.transpose(-1, -2))
         return 100 * logits
 
     def programme_5(self, sequence_output, visual_output, attention_mask, video_mask, sim_header='seqTransf'):
 
-        # sequence_output 4*1*512文本特征输出  visual_output 4*64*512 视频的特征输出  video_mask 4*64
-
-        sequence_output, visual_output = sequence_output.contiguous(), visual_output.contiguous()  # contiguous()为深度拷贝，拷贝完后不随原来的值变化
+        sequence_output, visual_output = sequence_output.contiguous(), visual_output.contiguous()  
         visual_output_original = visual_output
         sequence_output = sequence_output / sequence_output.norm(dim=-1, keepdim=True)
 
@@ -695,7 +669,7 @@ class CLIP4Clip(CLIP4ClipPreTrainedModel):
             after_select = y + z
             after_select = after_select.squeeze(1)
 
-            after_select = after_select / after_select.norm(dim=-1, keepdim=True)  # 再归一化
+            after_select = after_select / after_select.norm(dim=-1, keepdim=True)  
 
             logits[i] = torch.matmul(x, after_select.transpose(-1, -2))
         return 100 * logits
@@ -704,8 +678,7 @@ class CLIP4Clip(CLIP4ClipPreTrainedModel):
 
     def temporal_grounding(self, sequence_output, visual_output, attention_mask, video_mask, sim_header='seqTransf'):
 
-        # sequence_output 4*1*512文本特征输出  visual_output 4*64*512 视频的特征输出  video_mask 4*64
-        sequence_output,visual_output = sequence_output.contiguous(), visual_output.contiguous()  # contiguous()为深度拷贝，拷贝完后不随原来的值变化
+        sequence_output,visual_output = sequence_output.contiguous(), visual_output.contiguous()  
         visual_output_original = visual_output
         sequence_output = sequence_output / sequence_output.norm(dim=-1, keepdim=True)
 
@@ -773,17 +746,17 @@ class CLIP4Clip(CLIP4ClipPreTrainedModel):
             w = 1
             after_select = visual_output_original + y * w
 
-            after_select = after_select / after_select.norm(dim=-1, keepdim=True)  # 先归一化
-            after_select = self._mean_pooling_for_similarity_visual(after_select, video_mask)  # 再计算平均池化
+            after_select = after_select / after_select.norm(dim=-1, keepdim=True) 
+            after_select = self._mean_pooling_for_similarity_visual(after_select, video_mask) 
 
-            after_select = after_select / after_select.norm(dim=-1, keepdim=True)  # 再归一化
+            after_select = after_select / after_select.norm(dim=-1, keepdim=True) 
 
             logits[i] = torch.matmul(x, after_select.transpose(-1, -2))
         return 100 * logits
 
     def temporal_difference(self, sequence_output, visual_output, attention_mask, video_mask, sim_header='seqTransf'):
-        # sequence_output 4*1*512文本特征输出  visual_output 4*64*512 视频的特征输出  video_mask 4*64
-        sequence_output, visual_output = sequence_output.contiguous(), visual_output.contiguous()  # contiguous()为深度拷贝，拷贝完后不随原来的值变化
+    
+        sequence_output, visual_output = sequence_output.contiguous(), visual_output.contiguous()  
         visual_output_original = visual_output
         sequence_output = sequence_output / sequence_output.norm(dim=-1, keepdim=True)
 
@@ -822,16 +795,15 @@ class CLIP4Clip(CLIP4ClipPreTrainedModel):
             w = 1
             after_select = visual_output_original + y * w
 
-            after_select = after_select / after_select.norm(dim=-1, keepdim=True)  # 先归一化
-            after_select = self._mean_pooling_for_similarity_visual(after_select, video_mask)  # 再计算平均池化
+            after_select = after_select / after_select.norm(dim=-1, keepdim=True)  
+            after_select = self._mean_pooling_for_similarity_visual(after_select, video_mask)  
 
-            after_select = after_select / after_select.norm(dim=-1, keepdim=True)  # 再归一化
+            after_select = after_select / after_select.norm(dim=-1, keepdim=True)  
 
             logits[i] = torch.matmul(x, after_select.transpose(-1, -2))
         return 100 * logits
 
     def double_max(self, sequence_output, visual_output, attention_mask, video_mask, sim_header='seqTransf'):
-        # sequence_output 4*1*512文本特征输出  visual_output 4*64*512 视频的特征输出  video_mask 4*64
         sequence_output, visual_output = sequence_output.contiguous(), visual_output.contiguous() 
         visual_output_original = visual_output
         sequence_output = sequence_output / sequence_output.norm(dim=-1, keepdim=True)
@@ -879,7 +851,7 @@ class CLIP4Clip(CLIP4ClipPreTrainedModel):
             after_select = y * 0.6 + z
             after_select = after_select.squeeze(1)
 
-            after_select = after_select / after_select.norm(dim=-1, keepdim=True)  # 再归一化
+            after_select = after_select / after_select.norm(dim=-1, keepdim=True) 
 
             logits[i] = torch.matmul(x, after_select.transpose(-1, -2))
         return 100 * logits
