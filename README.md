@@ -14,8 +14,8 @@ Our ASP simply outperforms the baseline and achieved the SOTA at that time．
 
 
 ## Requirement
-We utilize the code base of [CLIP4Clip (ViT-B)](https://github.com/ArrowLuo/CLIP4Clip). Please follow their instructions to prepare the environment and datasets.
+We utilize the code base of [CLIP4Clip](https://github.com/ArrowLuo/CLIP4Clip). Please follow their instructions to prepare the environment and datasets.
 
 
 ## Get Started
-Put 
+Put `modeling_asp.py` under `./modules` and add the related import codes, use the param `--eval` to decide the ASP structure. 
