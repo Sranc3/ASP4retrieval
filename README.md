@@ -15,8 +15,10 @@ Our ASP simply outperforms the baseline and achieved the SOTA at that time．
 
 ## Requirement
 ```sh
-# From CLIP
-conda install --yes -c pytorch pytorch=1.7.1 torchvision cudatoolkit=11.0
-pip install ftfy regex tqdm
-pip install opencv-python boto3 requests pandas
+We utilize the code base of [CLIP4Clip (ViT-B)](https://github.com/ArrowLuo/CLIP4Clip). Please follow their instructions to prepare the environment and datasets.
+```
+
+## Get Started
+```sh
+
 ```
