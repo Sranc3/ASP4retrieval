@@ -14,11 +14,8 @@ Our ASP simply outperforms the baseline and achieved the SOTA at that time．
 
 
 ## Requirement
-```sh
 We utilize the code base of [CLIP4Clip (ViT-B)](https://github.com/ArrowLuo/CLIP4Clip). Please follow their instructions to prepare the environment and datasets.
-```
+
 
 ## Get Started
-```sh
-
-```
+Put 
