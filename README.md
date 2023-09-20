@@ -18,4 +18,4 @@ We utilize the code base of [CLIP4Clip](https://github.com/ArrowLuo/CLIP4Clip). 
 
 
 ## Get Started
-Put `modeling_asp.py` under `./modules` and add the related import codes, use the param `--eval` to decide the ASP structure. 
+Put `modeling_asp.py` under `./modules` and add the related import codes, use the param `--eval` to decide the ASP structure. Then follow CLIP4Clip's command to run. As a plug-and-play module, you can also add our ASP_logits function to other retreival models to boost performance.
